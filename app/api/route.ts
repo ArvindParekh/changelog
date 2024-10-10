@@ -36,10 +36,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(req: NextRequest) {
    const reqData = await req.json();
-   console.log("Req data: ", reqData);
    const changelogText = reqData.data.text;
 
-   console.log(changelogText);
 
    const myKv = getRequestContext().env.changelog_kv;
    console.log(formatDate(new Date(), "do MMM, yyyy H:m"));

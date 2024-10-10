@@ -15,8 +15,7 @@ export default function AddLog() {
    }
 
    function handleSubmit() {
-      console.log("handleSubmit called");
-      console.log("userLog:", userLog);
+      ("handleSubmit called");
       axios
          .post("http://localhost:3000/api", {
             data: {
