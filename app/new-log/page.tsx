@@ -1,24 +1,61 @@
 "use client";
 
-import { getServerSession } from "next-auth";
-import { authOptions } from "../auth/authOptions";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import axios from "axios";
+import { useState } from "react";
 
 export default function AddLog() {
    const session = useSession();
    const router = useRouter();
+   const [userLog, setUserLog] = useState("");
 
    function handlelogin() {
       router.push("/api/auth/signin");
    }
+
+   function handleSubmit() {
+      console.log("handleSubmit called");
+      console.log("userLog:", userLog);
+      axios
+         .post("http://localhost:3000/api", {
+            data: {
+               text: userLog,
+            },
+         })
+         .then((response) => {
+            console.log("Post request successful:", response);
+         })
+         .catch((error) => {
+            console.log("Post request error:", error);
+         });
+      return null;
+   }
    return (
-      <div>
+      <div className='flex items-center justify-center'>
          {session.status === "authenticated" ? (
-            <main className='flex min-h-screen items-center justify-center border flex-col p-5'>
-               <input className='dark:text-black' type='date'></input>
-               <input className='dark:text-black' type='datetime-local'></input>
+            <main className='flex min-h-screen space-y-10 items-center justify-center flex-col p-5'>
+               <div className='flex flex-col gap-2 items-center'>
+                  <label>Pick a date</label>
+                  <input
+                     className='text-black p-2 rounded-md'
+                     type='datetime-local'
+                  ></input>
+               </div>
+               <div className='flex flex-col gap-2 items-center'>
+                  <label>Enter log</label>
+                  <input
+                     className='text-black p-2 rounded-md'
+                     type='text'
+                     onChange={(e) => setUserLog(e.target.value)}
+                  />
+               </div>
+               <button
+                  className='p-2 border rounded-md bg-white text-black'
+                  onClick={handleSubmit}
+               >
+                  Add Log
+               </button>
             </main>
          ) : (
             <button onClick={() => handlelogin()}>LogIn</button>
