@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { getRequestContext } from "@cloudflare/next-on-pages";
+import { formatDate, formatDistanceToNow } from "date-fns";
 
 export const runtime = "edge";
 
@@ -19,6 +20,7 @@ export async function GET(request: NextRequest) {
    await Promise.all(
       lists.keys.map(async (list) => {
          const value = await myKv.get(`${list.name}`);
+         // const resolvedValue = Promise.resolve(value);
          const newEntry = {
             date: list.name,
             text: value,
@@ -27,24 +29,23 @@ export async function GET(request: NextRequest) {
       })
    );
 
-   console.log("Final changelog array: ", changelogArr);
    return new Response(JSON.stringify(changelogArr), {
       headers: { "Content-Type": "application/json" },
    });
 }
 
 export async function POST(req: NextRequest) {
-   console.log("herhehre");
    const reqData = await req.json();
    const changelogText = reqData.text;
 
    console.log(changelogText);
 
    const myKv = getRequestContext().env.changelog_kv;
-   const nowTime = new Date();
-   console.log(nowTime);
-   await myKv.put(`${nowTime}`, `${changelogText}`).then(() => {
-      console.log("Done");
-   });
+   console.log(formatDate(new Date(), "do MMM, yyyy H:m"));
+   await myKv
+      .put(`${formatDate(new Date(), "do MMM, yyyy H:m")}`, `${changelogText}`)
+      .then(() => {
+         console.log("Done");
+      });
    return new Response("Changelog added succesfully!");
 }
