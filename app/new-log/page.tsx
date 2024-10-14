@@ -16,9 +16,14 @@ export default function AddLog() {
    }
 
    function handleSubmit() {
+      // check if log is empty
+      if (userLog === "") {
+         alert("Dude, the log is empty. Seriously?");
+         return null;
+      }
       ("handleSubmit called");
       axios
-         .post("http://localhost:3000/api", {
+         .post("https://workers.aruparekh2.workers.dev/", {
             data: {
                text: userLog,
                date: logTime,
@@ -27,7 +32,7 @@ export default function AddLog() {
          .then((response) => {
             console.log("Post request successful:", response);
 
-            router.push('/')
+            router.push("/");
          })
          .catch((error) => {
             console.log("Post request error:", error);
@@ -49,9 +54,8 @@ export default function AddLog() {
                      }}
                   ></input>
 
-                  <h1>or</h1>
+                  <h1>or keep it empty to default to the current time</h1>
 
-                  <label>Now Time</label>
                </div>
                <div className='flex flex-col gap-2 items-center'>
                   <label>Enter log</label>

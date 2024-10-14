@@ -1,14 +1,19 @@
 "use client";
 
 import axios from "axios";
+import { useSession } from "next-auth/react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 export default function Home() {
-   const [data, setData] = useState([]);
+   const [data, setData] = useState<object[]>([]);
+   const session = useSession();
 
    useEffect(() => {
       const loadData = async () => {
-         const fetchData = (await axios.get("http://localhost:3000/api")).data;
+         const fetchData: object[] = JSON.parse(
+            (await axios.get("https://workers.aruparekh2.workers.dev/")).data
+         );
          setData(fetchData);
       };
 
@@ -25,6 +30,17 @@ export default function Home() {
                </div>
             );
          })}
+
+         {session.status === "authenticated" ? (
+            <Link
+               href={"/new-log"}
+               className='p-2 bg-white text-black rounded-lg absolute bottom-5 right-5'
+            >
+               New log
+            </Link>
+         ) : (
+            ""
+         )}
       </main>
    );
 }

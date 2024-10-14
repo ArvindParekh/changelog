@@ -8,8 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "pages:build": "pnpm next-on-pages",
+    "build:worker": "cloudflare",
     "preview": "pnpm pages:build && wrangler pages dev",
-    "deploy": "pnpm pages:build && wrangler pages deploy",
+    "deploy": "pnpm run build:worker && wrangler deploy",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts"
   },
   "dependencies": {

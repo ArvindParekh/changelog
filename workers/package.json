@@ -1,0 +1,15 @@
+{
+  "name": "workers",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify"
+  },
+  "dependencies": {
+    "hono": "^4.6.4"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240925.0",
+    "@date-fns/tz": "^1.1.2",
+    "wrangler": "^3.79.0"
+  }
+}
