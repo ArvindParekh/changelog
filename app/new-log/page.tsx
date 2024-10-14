@@ -26,6 +26,8 @@ export default function AddLog() {
          })
          .then((response) => {
             console.log("Post request successful:", response);
+
+            router.push('/')
          })
          .catch((error) => {
             console.log("Post request error:", error);
