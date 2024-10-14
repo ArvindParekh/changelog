@@ -9,6 +9,7 @@ export default function AddLog() {
    const session = useSession();
    const router = useRouter();
    const [userLog, setUserLog] = useState("");
+   const [logTime, setLogTime] = useState();
 
    function handlelogin() {
       router.push("/api/auth/signin");
@@ -20,6 +21,7 @@ export default function AddLog() {
          .post("http://localhost:3000/api", {
             data: {
                text: userLog,
+               date: logTime,
             },
          })
          .then((response) => {
@@ -39,7 +41,15 @@ export default function AddLog() {
                   <input
                      className='text-black p-2 rounded-md'
                      type='datetime-local'
+                     onChange={(e) => {
+                        console.log(e.target.value);
+                        return setLogTime(e.target.value);
+                     }}
                   ></input>
+
+                  <h1>or</h1>
+
+                  <label>Now Time</label>
                </div>
                <div className='flex flex-col gap-2 items-center'>
                   <label>Enter log</label>
