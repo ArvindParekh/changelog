@@ -12,6 +12,16 @@ const nextConfig = {
    typescript: {
       ignoreBuildErrors: true,
    },
+   images: {
+      remotePatterns: [
+         {
+            protocol: "https",
+            hostname: "pub-3c93c1439ff14a37a0cc0e43bec36992.r2.dev",
+            port: "",
+            pathname: "/**",
+         },
+      ],
+   },
 };
 
 export default nextConfig;

@@ -16,6 +16,7 @@ export default function Home() {
          const fetchData: object[] = JSON.parse(
             (await axios.get("https://workers.aruparekh2.workers.dev/")).data
          );
+         console.log(fetchData);
          setData(fetchData);
       };
 

@@ -10,9 +10,9 @@ compatibility_flags = [ "nodejs_compat" ]
 binding = "changelog_kv"
 id = "6b0604a4bac44cc29f9b3406c43113ff"
 
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
+[[r2_buckets]]
+binding = "r2_buckets"
+bucket_name = "changelog-images"
 
 # [[d1_databases]]
 # binding = "DB"
