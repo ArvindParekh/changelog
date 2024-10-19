@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Timeline } from "./components/ui/timeline";
+// import { Timeline } from "./components/ui/timeline";
 
 export default function Home() {
    const [data, setData] = useState<object[]>([]);
@@ -21,7 +22,11 @@ export default function Home() {
       loadData();
    }, []);
 
-   return <Timeline data={data} />;
+   return (
+      <div className='w-full'>
+         <Timeline data={data} />;
+      </div>
+   );
 
    // return (
    //    <main className='flex min-h-screen flex-col items-start p-5'>
