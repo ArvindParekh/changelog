@@ -5,14 +5,16 @@ import {
    useTransform,
    motion,
 } from "framer-motion";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
 interface TimelineEntry {
    date: string;
    text: string;
    image: {
-      isImage: boolean;
+      isImageAvailable: boolean;
       imageUrl: string;
    };
 }
@@ -21,6 +23,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
    const ref = useRef<HTMLDivElement>(null);
    const containerRef = useRef<HTMLDivElement>(null);
    const [height, setHeight] = useState(0);
+   const { status } = useSession();
 
    useEffect(() => {
       if (ref.current) {
@@ -75,7 +78,7 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
                            {item.text}
                         </p>
                         <div className='grid grid-cols-2 gap-4'>
-                           {item.image.isImage ? (
+                           {item.image.isImageAvailable ? (
                               <Image
                                  src={item.image.imageUrl}
                                  alt='startup template'
@@ -106,6 +109,22 @@ export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
                />
             </div>
          </div>
+
+         {status === "authenticated" ? (
+            <Link
+               href={"/new-log"}
+               className='p-2 bg-black text-white rounded-lg fixed bottom-5 right-5'
+            >
+               New log
+            </Link>
+         ) : (
+            <Link
+               href={"/api/auth/signin"}
+               className='p-2 bg-black text-white rounded-lg fixed bottom-5 right-5'
+            >
+               Authenticate
+            </Link>
+         )}
       </div>
    );
 };
