@@ -11,9 +11,9 @@ export default function Home() {
 
    useEffect(() => {
       const loadData = async () => {
-         const fetchData: object[] = JSON.parse(
-            (await axios.get("https://workers.aruparekh2.workers.dev/")).data
-         );
+         const fetchData: object[] = (
+            await axios.get("https://workers.aruparekh2.workers.dev/")
+         ).data;
          setData(fetchData);
       };
 
