@@ -22,7 +22,7 @@ export default function Home() {
             const response = await axios.get(
                "https://workers.aruparekh2.workers.dev/"
             );
-            const fetchData: ChangelogData[] = JSON.parse(response.data);
+            const fetchData: ChangelogData[] = response.data;
             setData(fetchData);
          } catch (error) {
             console.error("Error fetching data:", error);
