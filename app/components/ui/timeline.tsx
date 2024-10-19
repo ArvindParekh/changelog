@@ -133,14 +133,14 @@ export const Timeline = () => {
          {status === "authenticated" ? (
             <Link
                href={"/new-log"}
-               className='p-2 bg-black text-white rounded-lg fixed bottom-5 right-5'
+               className='p-2 bg-white text-black rounded-lg fixed bottom-5 right-5'
             >
                New log
             </Link>
          ) : (
             <Link
                href={"/api/auth/signin"}
-               className='p-2 bg-black text-white rounded-lg fixed bottom-5 right-5'
+               className='p-2 bg-black border outline-none text-white rounded-lg fixed bottom-5 right-5'
             >
                Authenticate
             </Link>
