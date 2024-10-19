@@ -1,4 +1,5 @@
 "use client";
+import axios from "axios";
 import {
    useMotionValueEvent,
    useScroll,
@@ -10,31 +11,50 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
-interface TimelineEntry {
+type ChangelogData = {
    date: string;
    text: string;
    image: {
       isImageAvailable: boolean;
       imageUrl: string;
    };
-}
+};
 
-export const Timeline = ({ data }: { data: TimelineEntry[] }) => {
+export const Timeline = () => {
    const ref = useRef<HTMLDivElement>(null);
    const containerRef = useRef<HTMLDivElement>(null);
    const [height, setHeight] = useState(0);
    const { status } = useSession();
+   const [data, setData] = useState<ChangelogData[]>([]);
+   const [isMounted, setIsMounted] = useState(false); // New state
 
    useEffect(() => {
-      if (ref.current) {
+      const loadData = async () => {
+         try {
+            const response = await axios.get(
+               "https://workers.aruparekh2.workers.dev/"
+            );
+            const fetchData: ChangelogData[] = response.data;
+            setData(fetchData);
+            setIsMounted(true);
+         } catch (error) {
+            console.error("Error fetching data:", error);
+         }
+      };
+
+      loadData();
+   }, []);
+
+   useEffect(() => {
+      if (ref.current && isMounted) {
          const rect = ref.current.getBoundingClientRect();
          setHeight(rect.height);
       }
-   }, [ref]);
+   }, [ref, isMounted]);
 
    const { scrollYProgress } = useScroll({
       target: containerRef,
-      offset: ["start 10%", "end 50%"],
+      offset: ["start 10%", "end 90%"],
    });
 
    const heightTransform = useTransform(scrollYProgress, [0, 1], [0, height]);
