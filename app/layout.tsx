@@ -5,7 +5,7 @@ import Providers from "./providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
-const spaceMono = Space_Mono({ weight: "400", subsets: ["latin"] });
+// const spaceMono = Space_Mono({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
    title: "arvind.changelog",
@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
    return (
       <html lang='en'>
-         <body className={spaceMono.className}>
+         <body className={inter.className}>
             <Providers>{children}</Providers>
          </body>
       </html>

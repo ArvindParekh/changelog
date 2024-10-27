@@ -13,7 +13,7 @@ export const authOptions = {
             username: {
                label: "Username",
                type: "text",
-               placeholder: "jsmith",
+               // placeholder: "jsmith",
             },
             password: { label: "Password", type: "password" },
          },
@@ -22,8 +22,8 @@ export const authOptions = {
 
             const newUser = {
                id: "1",
-               username: "jsmith",
-               password: "jsmith1234",
+               username: "arvind",
+               password: process.env.NEXTAUTH_SIGNIN_PASSWORD,
             };
 
             if (
