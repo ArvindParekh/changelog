@@ -11,30 +11,15 @@ export default function AddLog() {
    const router = useRouter();
    const [userLog, setUserLog] = useState<string>("");
    const [logTime, setLogTime] = useState<string | undefined>("");
+   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+   const [embeds, setEmbeds] = useState<string[]>([""]);
 
    // Redirect to login if the user is not authenticated
    const handleLogin = () => {
       router.push("/api/auth/signin");
    };
 
-   // const handleSubmit = async () => {
-
-   //    try {
-   //       const logDate = logTime || new Date().toISOString(); // Default to current time if no date provided
-   //       const response = await axios.post("https://workers.aruparekh2.workers.dev/", {
-   //          data: {
-   //             date: logDate,
-   //             text: userLog,
-   //          },
-   //       });
-   //       console.log("Post request successful:", response);
-   //       router.push("/");
-   //    } catch (error) {
-   //       console.error("Post request error:", error);
-   //    }
-   // };
-
-   // Submits the log data (date, text and image) to the server
+   // Handle form submission to upload log data
    const handleUpload = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
@@ -43,19 +28,23 @@ export default function AddLog() {
          return;
       }
 
-      const form = event.target as HTMLFormElement;
-      const fileInput = form.filename as HTMLInputElement;
-      const file = fileInput?.files?.[0];
-
-      if (!file) return;
-
       const formData = new FormData();
-      formData.append("filename", file);
       formData.append("content[text]", userLog);
       formData.append("content[date]", logTime || new Date().toISOString());
 
+      // Append multiple files to the form data
+      selectedFiles.forEach((file, index) => {
+         formData.append(`images[${index}]`, file);
+      });
+
+      // Append embeds to the form data
+      embeds.forEach((embed, index) => {
+         formData.append(`embeds[${index}]`, embed);
+      });
+
       try {
          const response = await axios.post(
+            // "http://localhost:8787/",
             "https://workers.aruparekh2.workers.dev/",
             formData,
             {
@@ -71,7 +60,30 @@ export default function AddLog() {
       }
    };
 
-   return <SignupFormDemo />;
+   // Handle file selection for multiple images
+   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files) {
+         setSelectedFiles(Array.from(event.target.files));
+      }
+   };
+
+   // Handle embed URL changes
+   const handleEmbedChange = (index: number, value: string) => {
+      setEmbeds((prev) => {
+         const updatedEmbeds = [...prev];
+         updatedEmbeds[index] = value;
+         return updatedEmbeds;
+      });
+   };
+
+   // Add a new embed field
+   const addEmbedField = () => setEmbeds((prev) => [...prev, ""]);
+
+   return (
+      <SignupFormDemo />
+   );
+}
+
 
    // return (
    //    <div className='flex items-center justify-center min-h-screen'>
@@ -124,4 +136,4 @@ export default function AddLog() {
    //       )}
    //    </div>
    // );
-}
+// }

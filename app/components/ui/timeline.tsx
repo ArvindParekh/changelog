@@ -11,12 +11,19 @@ import Image from "next/image";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
 
+type MediaItem = {
+   type: "image" | "embed";
+   url: string;
+   // platform?: string;
+};
+
 type ChangelogData = {
    date: string;
-   text: string;
-   image: {
+   text: string | null;
+   media: {
       isImageAvailable: boolean;
-      imageUrl: string;
+      isEmbedAvailable: boolean;
+      mediaItems: MediaItem[];
    };
 };
 
@@ -32,6 +39,7 @@ export const Timeline = () => {
       const loadData = async () => {
          try {
             const response = await axios.get(
+               // "http://localhost:8787/"
                "https://workers.aruparekh2.workers.dev/"
             );
             const fetchData: ChangelogData[] = response.data;
@@ -112,20 +120,43 @@ export const Timeline = () => {
                         ) : (
                            ""
                         )} */}
-                        {item.image.isImageAvailable ? (
+                        {(item.media.isImageAvailable ||
+                           item.media.isEmbedAvailable) && (
                            <div className='grid grid-cols-2 gap-4'>
-                              <div className='relative aspect-square w-full'>
-                                 <Image
-                                    src={item.image.imageUrl}
-                                    alt='startup template'
-                                    sizes='(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 50vw'
-                                    fill
-                                    className='rounded-lg object-contain shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]'
-                                 />
-                              </div>
+                              {item.media.mediaItems.map((mediaItem, idx) => {
+                                 return mediaItem.type === "image"
+                                    ? item.media.isImageAvailable && (
+                                         <div
+                                            key={idx}
+                                            className='relative aspect-square w-full'
+                                         >
+                                            <Image
+                                               src={mediaItem.url}
+                                               alt='media item'
+                                               sizes='(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 50vw'
+                                               fill
+                                               className='rounded-lg object-contain shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]'
+                                            />
+                                         </div>
+                                      )
+                                    : item.media.isEmbedAvailable && (
+                                         <div
+                                            key={idx}
+                                            className='embed-container'
+                                         >
+                                            <iframe
+                                               src={mediaItem.url}
+                                               title='embed media item'
+                                               className='rounded-lg shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]'
+                                               width='100%'
+                                               height='100%'
+                                               allow='encrypted-media'
+                                               frameBorder='0'
+                                            />
+                                         </div>
+                                      );
+                              })}
                            </div>
-                        ) : (
-                           ""
                         )}
                      </div>
                   </div>

@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -12,13 +13,22 @@ export default function SignupFormDemo() {
    const router = useRouter();
    const [userLog, setUserLog] = useState<string>("");
    const [logTime, setLogTime] = useState<string | undefined>("");
+   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+   const [embeds, setEmbeds] = useState<string[]>([""]);
 
    // Redirect to login if the user is not authenticated
    const handleLogin = () => {
       router.push("/api/auth/signin");
    };
 
-   // Submits the log data (date, text and image) to the server
+   // Handle multiple file selection
+   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      if (event.target.files) {
+         setSelectedFiles(Array.from(event.target.files));
+      }
+   };
+
+   // Submits the log data (date, text, and images) to the server
    const handleUpload = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
@@ -27,19 +37,21 @@ export default function SignupFormDemo() {
          return;
       }
 
-      const form = event.target as HTMLFormElement;
-      const fileInput = form.filename as HTMLInputElement;
-      const file = fileInput?.files?.[0];
-
-      if (!file) return;
-
       const formData = new FormData();
-      formData.append("filename", file);
+      selectedFiles.forEach((file, index) => {
+         formData.append(`images[${index}]`, file);
+      });
       formData.append("content[text]", userLog);
-      formData.append("content[date]", logTime);
+      formData.append("content[date]", logTime || new Date().toISOString());
+
+      // Append embeds to the form data
+      embeds.forEach((embed, index) => {
+         formData.append(`embeds[${index}]`, embed);
+      });
 
       try {
          const response = await axios.post(
+            // "http://localhost:8787/",
             "https://workers.aruparekh2.workers.dev/",
             formData,
             {
@@ -54,6 +66,18 @@ export default function SignupFormDemo() {
          console.error("Error uploading file:", error);
       }
    };
+
+   // Handle embed URL changes
+   const handleEmbedChange = (index: number, value: string) => {
+      setEmbeds((prev) => {
+         const updatedEmbeds = [...prev];
+         updatedEmbeds[index] = value;
+         return updatedEmbeds;
+      });
+   };
+
+   // Add a new embed field
+   const addEmbedField = () => setEmbeds((prev) => [...prev, ""]);
 
    return (
       <main className='md:flex md:items-center md:justify-center md:h-screen md:w-screen bg-black'>
@@ -94,14 +118,40 @@ export default function SignupFormDemo() {
                      />
                   </LabelInputContainer>
                   <LabelInputContainer className='mb-4'>
-                     <Label htmlFor='image'>Image (optional)</Label>
+                     <Label htmlFor='images'>Images (optional)</Label>
                      <Input
-                        id='image'
+                        id='images'
                         type='file'
                         accept='image/*'
-                        name='filename'
+                        name='images'
+                        multiple
+                        onChange={handleFileChange}
                      />
                   </LabelInputContainer>
+
+                  {/* Embeds input fields */}
+                  <div className='flex flex-col gap-2 items-center'>
+                     <label htmlFor='embeds'>Add embeds</label>
+                     {embeds.map((embed, index) => (
+                        <input
+                           key={index}
+                           className='text-black p-2 rounded-md'
+                           type='url'
+                           placeholder='Embed URL (e.g., Twitter, Bluesky)'
+                           value={embed}
+                           onChange={(e) =>
+                              handleEmbedChange(index, e.target.value)
+                           }
+                        />
+                     ))}
+                     <button
+                        type='button'
+                        onClick={addEmbedField}
+                        className='p-1 border rounded-md bg-gray-200'
+                     >
+                        + Add another embed
+                     </button>
+                  </div>
 
                   <div className='bg-gradient-to-r from-transparent via-neutral-300 dark:via-neutral-700 to-transparent my-8 h-[1px] w-full' />
 
