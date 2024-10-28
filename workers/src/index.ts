@@ -9,22 +9,24 @@ type Bindings = {
    R2_ACCOUNT_ID: string;
 };
 
+type MediaItem = {
+   type: "image" | "embed";
+   url: string;
+};
+
 type ChangelogEntry = {
    date: string;
    text: string | null;
-   image: {
+   media: {
       isImageAvailable: boolean;
-      imageUrl: string;
+      isEmbedAvailable: boolean;
+      mediaItems: MediaItem[];
    };
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
 
 app.use("*", cors());
-
-export interface Env {
-   changelog_kv: KVNamespace;
-}
 
 // Helper function to construct image URL
 const getImageUrl = (accountId: string, fileName: string): string => {
@@ -35,18 +37,23 @@ const getImageUrl = (accountId: string, fileName: string): string => {
    return `https://pub-${accountId}.r2.dev/${encodedFileName}`;
 };
 
-// Helper function to upload file to R2
+// Helper function to upload files to R2 and return URLs
 const uploadToR2 = async (
    r2Bucket: R2Bucket,
-   key: string,
-   file: File | null
-): Promise<void> => {
-   if (file) {
+   accountId: string,
+   fileName: string,
+   files: File[]
+): Promise<string[]> => {
+   const urls: string[] = [];
+
+   for (const [index, file] of files.entries()) {
+      const key = `${fileName}-img${index}`;
       await r2Bucket.put(key, file);
+      const url = getImageUrl(accountId, key);
+      urls.push(url);
       console.log(`Image uploaded to R2 with key: ${key}`);
-   } else {
-      console.log("No image found. Not uploading to R2.");
    }
+   return urls;
 };
 
 // Helper function to upload changelog to KV
@@ -66,27 +73,28 @@ const uploadToKV = async (
 // GET handler: Fetch and return the changelog
 app.get("/", async (c) => {
    const kvKeys = await c.env.changelog_kv.list();
-   const r2Objects = (await c.env.r2_buckets.list()).objects.map(
-      (obj) => obj.key
-   );
    const changelogArr: ChangelogEntry[] = [];
-   const imageBaseUrl = `https://pub-${c.env.R2_ACCOUNT_ID}.r2.dev/`;
 
    // Process each changelog entry
    await Promise.all(
       kvKeys.keys.map(async (kvEntry) => {
-         const changelogText = await c.env.changelog_kv.get(kvEntry.name);
-         const isImageAvailable = r2Objects.includes(kvEntry.name);
-         const imageUrl = getImageUrl(c.env.R2_ACCOUNT_ID, kvEntry.name);
+         const changelogData = await c.env.changelog_kv.get(kvEntry.name);
+         console.log(changelogData)
+         if (changelogData) {
+            const parsedData: ChangelogEntry = JSON.parse(changelogData);
+            // console.log(parsedData);
 
-         changelogArr.push({
-            date: kvEntry.name,
-            text: changelogText,
-            image: {
-               isImageAvailable,
-               imageUrl,
-            },
-         });
+            // Add each parsed changelog entry to the array
+            changelogArr.push({
+               date: parsedData.date,
+               text: parsedData.text,
+               media: {
+                  isImageAvailable: parsedData.media.isImageAvailable,
+                  isEmbedAvailable: parsedData.media.isEmbedAvailable,
+                  mediaItems: parsedData.media.mediaItems,
+               },
+            });
+         }
       })
    );
 
@@ -105,6 +113,7 @@ app.get("/", async (c) => {
       return dateA.getTime() - dateB.getTime();
    });
 
+
    return c.json(changelogArr, {
       headers: { "Content-Type": "application/json" },
    });
@@ -115,16 +124,58 @@ app.post("/", async (c) => {
    const reqData = await c.req.parseBody();
    const changelogText = reqData["content[text]"] as string;
    const changelogDate = (reqData["content[date]"] as string) || "";
-   const changelogImage = reqData["filename"] as File | null;
+
+   // Extract images from reqData
+   const changelogImages = Object.keys(reqData)
+      .filter((key) => key.startsWith("images["))
+      .map((key) => reqData[key] as File);
+
+   const changelogEmbeds = Object.keys(reqData)
+      .filter((key) => key.startsWith("embeds["))
+      .map((key) => reqData[key] as { url: string; platform: string });
+
+   console.log(changelogEmbeds);
 
    // Determine the date to use
    const date = changelogDate
-      ? formatDate(changelogDate, "do MMM, yyyy H:m")
+      ? formatDate(new Date(changelogDate), "do MMM, yyyy H:m")
       : formatDate(new TZDate(new Date(), "Asia/Calcutta"), "do MMM, yyyy H:m");
 
-   // Upload to R2 and KV
-   await uploadToR2(c.env.r2_buckets, date, changelogImage);
-   await uploadToKV(c.env.changelog_kv, date, changelogText);
+   // Upload images to R2 and get URLs
+   const imageUrls = await uploadToR2(
+      c.env.r2_buckets,
+      c.env.R2_ACCOUNT_ID,
+      date,
+      changelogImages
+   );
+
+   // Check if there are any images or embeds
+   const isImageAvailable = imageUrls.length > 0;
+   const isEmbedAvailable = changelogEmbeds.length > 0;
+
+   // Construct media array from images and embeds
+   const mediaItems: MediaItem[] = [
+      ...imageUrls.map((url) => ({ type: "image", url })),
+      ...changelogEmbeds.map((embed) => ({
+         type: "embed",
+         url: embed,
+         // platform: embed.platform, // If needed, uncomment this line
+      })),
+   ];
+
+   // Construct the changelog entry data
+   const changelogEntry: ChangelogEntry = {
+      date,
+      text: changelogText,
+      media: {
+         isImageAvailable,
+         isEmbedAvailable,
+         mediaItems,
+      },
+   };
+
+   // Upload changelog entry to KV as a JSON string
+   await uploadToKV(c.env.changelog_kv, date, JSON.stringify(changelogEntry));
 
    return c.json({ message: "Changelog added successfully!" });
 });
