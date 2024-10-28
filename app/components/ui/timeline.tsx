@@ -80,9 +80,6 @@ export const Timeline = () => {
             <p className='text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-sm'>
                Still figuring things out &mdash; Here&apos;s the highlight reel!
             </p>
-            <p className="text-neutral-700 dark:text-neutral-300 text-sm md:text-base max-w-sm'">
-               <b>Note: Under maintainance</b> - we'll be up and running soon!
-            </p>
          </div>
 
          <div ref={ref} className='relative max-w-7xl mx-auto pb-20 bg-black'>
