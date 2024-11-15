@@ -1,4 +1,15 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`c3`](https://developers.cloudflare.com/pages/get-started/c3).
+# Changelog App 
+
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`c3`](https://developers.cloudflare.com/pages/get-started/c3) that provides a modern changelog and updates tracking system.
+
+## Features
+
+- Timeline-based changelog display
+- Twitter integration for embedding tweets
+- Authentication support
+- Interactive UI components 
+- New log entry creation interface
+- Cloudflare Pages deployment ready
 
 ## Getting Started
 
@@ -16,53 +27,67 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## Cloudflare integration
+## Project Structure
 
-Besides the `dev` script mentioned above `c3` has added a few extra scripts that allow you to integrate the application with the [Cloudflare Pages](https://pages.cloudflare.com/) environment, these are:
-  - `pages:build` to build the application for Pages using the [`@cloudflare/next-on-pages`](https://github.com/cloudflare/next-on-pages) CLI
-  - `preview` to locally preview your Pages application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
-  - `deploy` to deploy your Pages application using the [Wrangler](https://developers.cloudflare.com/workers/wrangler/) CLI
+The application is organized as follows:
 
-> __Note:__ while the `dev` script is optimal for local development you should preview your Pages application as well (periodically or before deployments) in order to make sure that it can properly work in the Pages environment (for more details see the [`@cloudflare/next-on-pages` recommended workflow](https://github.com/cloudflare/next-on-pages/blob/main/internal-packages/next-dev/README.md#recommended-development-workflow))
+- `/app` - Main application code
+  - `/api` - API routes including authentication endpoints
+  - `/components` - React components including UI elements
+  - `/lib` - Utility functions and configuration
+  - `/types` - TypeScript type definitions
+- `/public` - Static assets
+- `/workers` - Cloudflare Workers code
+
+## Cloudflare Integration
+
+This project includes full Cloudflare Pages integration with the following scripts:
+
+- `pages:build` - Build the application for Pages using [`@cloudflare/next-on-pages`](https://github.com/cloudflare/next-on-pages)
+- `preview` - Local preview using [Wrangler](https://developers.cloudflare.com/workers/wrangler/)
+- `deploy` - Deploy to Pages using Wrangler
+
+> **Note:** While the `dev` script is optimal for local development, you should periodically preview your Pages application to ensure compatibility with the Pages environment. See the [`@cloudflare/next-on-pages` recommended workflow](https://github.com/cloudflare/next-on-pages/blob/main/internal-packages/next-dev/README.md#recommended-development-workflow) for more details.
 
 ### Bindings
 
-Cloudflare [Bindings](https://developers.cloudflare.com/pages/functions/bindings/) are what allows you to interact with resources available in the Cloudflare Platform.
+[Cloudflare Bindings](https://developers.cloudflare.com/pages/functions/bindings/) allow interaction with Cloudflare Platform resources. They can be used in:
 
-You can use bindings during development, when previewing locally your application and of course in the deployed application:
+1. Development mode - Configure in `next.config.js` under `setupDevBindings`
+2. Preview mode - Add to the `pages:preview` script according to `wrangler pages dev`
+3. Production - Configure in the Cloudflare [dashboard](https://dash.cloudflare.com/)
 
-- To use bindings in dev mode you need to define them in the `next.config.js` file under `setupDevBindings`, this mode uses the `next-dev` `@cloudflare/next-on-pages` submodule. For more details see its [documentation](https://github.com/cloudflare/next-on-pages/blob/05b6256/internal-packages/next-dev/README.md).
+For detailed configuration instructions, see:
+- [Next-on-Pages Documentation](https://github.com/cloudflare/next-on-pages/blob/05b6256/internal-packages/next-dev/README.md)
+- [Wrangler Command Documentation](https://developers.cloudflare.com/workers/wrangler/commands/#dev-1)
+- [Pages Bindings Documentation](https://developers.cloudflare.com/pages/functions/bindings/)
 
-- To use bindings in the preview mode you need to add them to the `pages:preview` script accordingly to the `wrangler pages dev` command. For more details see its [documentation](https://developers.cloudflare.com/workers/wrangler/commands/#dev-1) or the [Pages Bindings documentation](https://developers.cloudflare.com/pages/functions/bindings/).
+## Authentication
 
-- To use bindings in the deployed application you will need to configure them in the Cloudflare [dashboard](https://dash.cloudflare.com/). For more details see the  [Pages Bindings documentation](https://developers.cloudflare.com/pages/functions/bindings/).
+The app includes authentication support through NextAuth.js. Configuration can be found in `/app/lib/authOptions.ts`.
 
-#### KV Example
+## UI Components
 
-`c3` has added for you an example showing how you can use a KV binding.
+The project includes several reusable UI components:
 
-In order to enable the example:
-- Search for javascript/typescript lines containing the following comment:
-  ```ts
-  // KV Example:
-  ```
-  and uncomment the commented lines below it.
-- Do the same in the `wrangler.toml` file, where
-  the comment is:
-  ```
-  # KV Example:
-  ```
-- If you're using TypeScript run the `cf-typegen` script to update the `env.d.ts` file:
-  ```bash
-  npm run cf-typegen
-  # or
-  yarn cf-typegen
-  # or
-  pnpm cf-typegen
-  # or
-  bun cf-typegen
-  ```
+- Timeline display
+- Changelog items
+- Input fields with modern styling
+- Tweet embedding functionality
+- Form components
 
-After doing this you can run the `dev` or `preview` script and visit the `/api/hello` route to see the example in action.
+## Development
 
-Finally, if you also want to see the example work in the deployed application make sure to add a `MY_KV_NAMESPACE` binding to your Pages application in its [dashboard kv bindings settings section](https://dash.cloudflare.com/?to=/:account/pages/view/:pages-project/settings/functions#kv_namespace_bindings_section). After having configured it make sure to re-deploy your application.
+For local development:
+
+1. Clone the repository
+2. Install dependencies with your preferred package manager
+3. Configure environment variables
+4. Run the development server
+5. Make changes and preview using the Pages preview functionality before deployment
+
+## Additional Resources
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Cloudflare Pages Documentation](https://developers.cloudflare.com/pages)
+- [Wrangler Documentation](https://developers.cloudflare.com/workers/wrangler/)
