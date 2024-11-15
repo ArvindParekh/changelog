@@ -13,6 +13,7 @@ export default function AddLog() {
    const [logTime, setLogTime] = useState<string | undefined>("");
    const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
    const [embeds, setEmbeds] = useState<string[]>([""]);
+   const [tweetUrl, setTweetUrl] = useState('')
 
    // Redirect to login if the user is not authenticated
    const handleLogin = () => {
@@ -37,10 +38,15 @@ export default function AddLog() {
          formData.append(`images[${index}]`, file);
       });
 
-      // Append embeds to the form data
-      embeds.forEach((embed, index) => {
-         formData.append(`embeds[${index}]`, embed);
-      });
+      // Filter out empty embeds and append valid ones
+      embeds
+         .filter(embed => embed.trim() !== '')
+         .forEach((embed, index) => {
+            formData.append(`embeds[${index}]`, JSON.stringify({
+               type: "embed",
+               url: embed
+            }));
+         });
 
       try {
          const response = await axios.post(

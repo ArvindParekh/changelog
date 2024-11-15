@@ -44,10 +44,15 @@ export default function SignupFormDemo() {
       formData.append("content[text]", userLog);
       formData.append("content[date]", logTime || new Date().toISOString());
 
-      // Append embeds to the form data
-      embeds.forEach((embed, index) => {
-         formData.append(`embeds[${index}]`, embed);
-      });
+      // Filter out empty embeds and append valid ones
+      embeds
+         .filter(embed => embed.trim() !== '')
+         .forEach((embed, index) => {
+            formData.append(`embeds[${index}]`, JSON.stringify({
+               type: "embed",
+               url: embed
+            }));
+         });
 
       try {
          const response = await axios.post(
@@ -69,6 +74,11 @@ export default function SignupFormDemo() {
 
    // Handle embed URL changes
    const handleEmbedChange = (index: number, value: string) => {
+      // Basic Twitter URL validation
+      const isValidTweetUrl = (url: string): boolean => {
+         return /^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/[0-9]+/.test(url);
+      };
+
       setEmbeds((prev) => {
          const updatedEmbeds = [...prev];
          updatedEmbeds[index] = value;

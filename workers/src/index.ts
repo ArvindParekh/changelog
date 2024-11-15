@@ -132,7 +132,13 @@ app.post("/", async (c) => {
 
    const changelogEmbeds = Object.keys(reqData)
       .filter((key) => key.startsWith("embeds["))
-      .map((key) => reqData[key] as { url: string; platform: string });
+      .map((key) => {
+         const embedData = JSON.parse(reqData[key]);
+         return {
+            type: "embed",
+            url: embedData.url
+         };
+      });
 
    console.log(changelogEmbeds);
 
@@ -156,11 +162,7 @@ app.post("/", async (c) => {
    // Construct media array from images and embeds
    const mediaItems: MediaItem[] = [
       ...imageUrls.map((url) => ({ type: "image", url })),
-      ...changelogEmbeds.map((embed) => ({
-         type: "embed",
-         url: embed,
-         // platform: embed.platform, // If needed, uncomment this line
-      })),
+      ...changelogEmbeds
    ];
 
    // Construct the changelog entry data
