@@ -52,13 +52,13 @@ const uploadToR2 = async (
 ): Promise<string[]> => {
    const urls: string[] = [];
 
-   for (const [index, file] of files.entries()) {
-      const key = `${fileName}-img${index}`;
-      await r2Bucket.put(key, file);
-      const url = getImageUrl(accountId, key);
-      urls.push(url);
-      console.log(`Image uploaded to R2 with key: ${key}`);
-   }
+   // Upload each file with a unique index
+   const file = files[0]; // We now expect only one file per call
+   await r2Bucket.put(fileName, file);
+   const url = getImageUrl(accountId, fileName);
+   urls.push(url);
+   console.log(`Image uploaded to R2 with key: ${fileName}`);
+   
    return urls;
 };
 
@@ -159,10 +159,17 @@ app.post("/", async (c) => {
       
       if (item instanceof File) {
          // Handle image file
+         const imageIndex = mediaItems.filter(item => item.type === "image").length;
+         // Count total number of files
+         const totalFiles = mediaItemKeys.filter(k => reqData[k] instanceof File).length;
+         
+         // Only add suffix if there are multiple files
+         const fileName = totalFiles > 1 ? date + `-img${imageIndex}` : date;
+         
          const imageUrl = await uploadToR2(
             c.env.r2_buckets,
             c.env.R2_ACCOUNT_ID,
-            date,
+            fileName,
             [item]
          );
          if (imageUrl.length > 0) {
