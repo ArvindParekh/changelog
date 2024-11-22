@@ -88,6 +88,13 @@ export const Timeline = () => {
       }
    };
 
+   const handleEmbedLoad = () => {
+      if (ref.current) {
+         const rect = ref.current.getBoundingClientRect();
+         setHeight(rect.height);
+      }
+   };
+
    useEffect(() => {
       if (ref.current) {
          const rect = ref.current.getBoundingClientRect();
@@ -105,6 +112,7 @@ export const Timeline = () => {
                   key={index} 
                   item={item} 
                   onTweetLoad={handleTweetLoad} 
+                  onEmbedLoad={handleEmbedLoad}
                />
             ))}
             <div

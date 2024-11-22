@@ -29,9 +29,10 @@ type ChangelogData = {
 interface ChangelogItemProps {
    item: ChangelogData;
    onTweetLoad: () => void;
+   onEmbedLoad: () => void;
 }
 
-const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad }) => {
+const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad, onEmbedLoad }) => {
    const getTweetId = (url: string): string => {
       const matches = url.match(/\/status\/(\d+)/);
       return matches ? matches[1] : '';
@@ -83,6 +84,7 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad }) => {
                                           </div>
                                        );
                                     } else if (embed.itemType === "bsky") {
+                                       onEmbedLoad();
                                        return (
                                           <div key={embedIdx} className='w-full'>
                                              <Post handle={embed.handle!} id={embed.id!} />
