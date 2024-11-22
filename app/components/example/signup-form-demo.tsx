@@ -28,7 +28,7 @@ export default function SignupFormDemo() {
       }
    };
 
-   // Submits the log data (date, text, and images) to the server
+   // Submits the log data (date, text, images, and embeds) to the server
    const handleUpload = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
 
@@ -38,25 +38,40 @@ export default function SignupFormDemo() {
       }
 
       const formData = new FormData();
-      selectedFiles.forEach((file, index) => {
-         formData.append(`images[${index}]`, file);
-      });
       formData.append("content[text]", userLog);
       formData.append("content[date]", logTime || new Date().toISOString());
 
-      // Filter out empty embeds and append valid ones
-      embeds
-         .filter(embed => embed.trim() !== '')
-         .forEach((embed, index) => {
-            formData.append(`embeds[${index}]`, JSON.stringify({
+      // Add images to content[media][mediaItems]
+      selectedFiles.forEach((file, index) => {
+         formData.append(`content[media][mediaItems][${index}]`, file);
+      });
+
+      // Add embeds after images
+      let mediaItemIndex = selectedFiles.length;
+      embeds.forEach((embed, index) => {
+         formData.append(
+            `content[media][mediaItems][${mediaItemIndex + index}]`,
+            JSON.stringify({
                type: "embed",
-               url: embed
-            }));
-         });
+               url: embed,
+            })
+         );
+      });
+
+      // Set media availability flags
+      formData.append(
+         "content[media][isImageAvailable]",
+         String(selectedFiles.length > 0)
+      );
+      formData.append(
+         "content[media][isEmbedAvailable]",
+         String(embeds.length > 0)
+      );
+
+      console.log("formdata", formData);
 
       try {
          const response = await axios.post(
-            // "http://localhost:8787/",
             "https://workers.aruparekh2.workers.dev/",
             formData,
             {
@@ -74,16 +89,23 @@ export default function SignupFormDemo() {
 
    // Handle embed URL changes
    const handleEmbedChange = (index: number, value: string) => {
-      // Basic Twitter URL validation
+      // Enhanced Twitter URL validation
       const isValidTweetUrl = (url: string): boolean => {
-         return /^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/[0-9]+/.test(url);
+         const twitterRegex =
+            /^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/[0-9]+/;
+         return twitterRegex.test(url);
       };
 
-      setEmbeds((prev) => {
-         const updatedEmbeds = [...prev];
-         updatedEmbeds[index] = value;
-         return updatedEmbeds;
-      });
+      if (isValidTweetUrl(value)) {
+         setEmbeds((prev) => {
+            const updatedEmbeds = [...prev];
+            updatedEmbeds[index] = value;
+            return updatedEmbeds;
+         });
+      }
+      else {
+         alert("Invalid embed URL");
+      }
    };
 
    // Add a new embed field

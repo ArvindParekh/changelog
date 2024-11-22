@@ -125,45 +125,52 @@ app.post("/", async (c) => {
    const changelogText = reqData["content[text]"] as string;
    const changelogDate = (reqData["content[date]"] as string) || "";
 
-   // Extract images from reqData
-   const changelogImages = Object.keys(reqData)
-      .filter((key) => key.startsWith("images["))
-      .map((key) => reqData[key] as File);
+   // Initialize mediaItems array
+   const mediaItems: MediaItem[] = [];
 
-   const changelogEmbeds = Object.keys(reqData)
-      .filter((key) => key.startsWith("embeds["))
-      .map((key) => {
-         const embedData = JSON.parse(reqData[key]);
-         return {
-            type: "embed",
-            url: embedData.url
-         };
-      });
-
-   console.log(changelogEmbeds);
-
-   // Determine the date to use
-   const date = changelogDate
-      ? formatDate(new Date(changelogDate), "do MMM, yyyy H:m")
-      : formatDate(new TZDate(new Date(), "Asia/Calcutta"), "do MMM, yyyy H:m");
-
-   // Upload images to R2 and get URLs
-   const imageUrls = await uploadToR2(
-      c.env.r2_buckets,
-      c.env.R2_ACCOUNT_ID,
-      date,
-      changelogImages
+   // Process all media items
+   const mediaItemKeys = Object.keys(reqData).filter(key => 
+      key.startsWith("content[media][mediaItems]")
    );
 
-   // Check if there are any images or embeds
-   const isImageAvailable = imageUrls.length > 0;
-   const isEmbedAvailable = changelogEmbeds.length > 0;
+    // Determine the date to use
+    const date = changelogDate
+    ? formatDate(new Date(changelogDate), "do MMM, yyyy H:m")
+    : formatDate(new TZDate(new Date(), "Asia/Calcutta"), "do MMM, yyyy H:m");
 
-   // Construct media array from images and embeds
-   const mediaItems: MediaItem[] = [
-      ...imageUrls.map((url) => ({ type: "image", url })),
-      ...changelogEmbeds
-   ];
+   // Upload images and process embeds
+   for (const key of mediaItemKeys) {
+      const item = reqData[key];
+      
+      if (item instanceof File) {
+         // Handle image file
+         const imageUrl = await uploadToR2(
+            c.env.r2_buckets,
+            c.env.R2_ACCOUNT_ID,
+            date,
+            [item]
+         );
+         if (imageUrl.length > 0) {
+            mediaItems.push({ type: "image", url: imageUrl[0] });
+         }
+      } else if (typeof item === "string") {
+         // Handle embed
+         try {
+            const embedData = JSON.parse(item);
+            if (embedData.type === "embed") {
+               mediaItems.push(embedData);
+            }
+         } catch (error) {
+            console.error("Error parsing embed data:", error);
+         }
+      }
+   }
+
+  
+
+   // Check if there are any images or embeds
+   const isImageAvailable = mediaItems.some(item => item.type === "image");
+   const isEmbedAvailable = mediaItems.some(item => item.type === "embed");
 
    // Construct the changelog entry data
    const changelogEntry: ChangelogEntry = {
