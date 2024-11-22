@@ -17,6 +17,9 @@ importers:
       axios:
         specifier: ^1.7.7
         version: 1.7.7
+      bsky-react-post:
+        specifier: ^0.1.3
+        version: 0.1.3(react@18.3.1)(swr@2.2.5(react@18.3.1))
       class-variance-authority:
         specifier: ^0.7.0
         version: 0.7.0
@@ -858,6 +861,12 @@ packages:
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
     engines: {node: '>=8'}
+
+  bsky-react-post@0.1.3:
+    resolution: {integrity: sha512-H92MFif6l0ItmPMhLKcpKY42g3DHPKMldLYd+sXuUCd14/kd2UceQqKdrtRsr48hmJwhYxipRAEC7j4vR8i8wQ==}
+    peerDependencies:
+      react: '>= 18.0.0'
+      swr: ^2.2.5
 
   buffer-crc32@0.2.13:
     resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
@@ -3873,6 +3882,11 @@ snapshots:
   braces@3.0.3:
     dependencies:
       fill-range: 7.1.1
+
+  bsky-react-post@0.1.3(react@18.3.1)(swr@2.2.5(react@18.3.1)):
+    dependencies:
+      react: 18.3.1
+      swr: 2.2.5(react@18.3.1)
 
   buffer-crc32@0.2.13: {}
 

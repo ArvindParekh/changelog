@@ -11,7 +11,13 @@ type Bindings = {
 
 type MediaItem = {
    type: "image" | "embed";
-   url: string;
+   url?: string;
+   embedItems?: { 
+      itemType: "twitter" | "bsky"; 
+      url?: string;
+      handle?: string;
+      id?: string;
+   }[];
 };
 
 type ChangelogEntry = {
@@ -70,6 +76,16 @@ const uploadToKV = async (
    }
 };
 
+// Helper function to handle Bluesky URLs
+const parseBskyUrl = (url: string): { handle: string; id: string } | null => {
+   const regex = /https?:\/\/(.*?\.bsky\.social)\/post\/(.*)/;
+   const match = url.match(regex);
+   if (match) {
+      return { handle: match[1], id: match[2] };
+   }
+   return null;
+};
+
 // GET handler: Fetch and return the changelog
 app.get("/", async (c) => {
    const kvKeys = await c.env.changelog_kv.list();
@@ -113,7 +129,6 @@ app.get("/", async (c) => {
       return dateA.getTime() - dateB.getTime();
    });
 
-
    return c.json(changelogArr, {
       headers: { "Content-Type": "application/json" },
    });
@@ -133,10 +148,10 @@ app.post("/", async (c) => {
       key.startsWith("content[media][mediaItems]")
    );
 
-    // Determine the date to use
-    const date = changelogDate
-    ? formatDate(new Date(changelogDate), "do MMM, yyyy H:m")
-    : formatDate(new TZDate(new Date(), "Asia/Calcutta"), "do MMM, yyyy H:m");
+   // Determine the date to use
+   const date = changelogDate
+      ? formatDate(new Date(changelogDate), "do MMM, yyyy H:m")
+      : formatDate(new TZDate(new Date(), "Asia/Calcutta"), "do MMM, yyyy H:m");
 
    // Upload images and process embeds
    for (const key of mediaItemKeys) {
@@ -158,15 +173,29 @@ app.post("/", async (c) => {
          try {
             const embedData = JSON.parse(item);
             if (embedData.type === "embed") {
-               mediaItems.push(embedData);
+               // Check for Twitter embed
+               if (embedData.platform === "twitter") {
+                  mediaItems.push({
+                     type: "embed",
+                     embedItems: [{ itemType: "twitter", url: embedData.url }]
+                  });
+               }
+               // Check for Bluesky embed
+               else if (embedData.platform === "bsky") {
+                  const parsed = parseBskyUrl(embedData.url);
+                  if (parsed) {
+                     mediaItems.push({
+                        type: "embed",
+                        embedItems: [{ itemType: "bsky", handle: parsed.handle, id: parsed.id }]
+                     });
+                  }
+               }
             }
          } catch (error) {
             console.error("Error parsing embed data:", error);
          }
       }
    }
-
-  
 
    // Check if there are any images or embeds
    const isImageAvailable = mediaItems.some(item => item.type === "image");

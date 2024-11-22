@@ -88,6 +88,13 @@ export const Timeline = () => {
       }
    };
 
+   useEffect(() => {
+      if (ref.current) {
+         const rect = ref.current.getBoundingClientRect();
+         setHeight(rect.height);
+      }
+   }, [data, loadedTweets]);
+
    return (
       <div className='w-full bg-neutral-950 font-sans md:px-10' ref={containerRef}>
          <ChangelogHeader />

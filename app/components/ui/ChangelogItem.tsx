@@ -2,10 +2,18 @@
 import React from 'react';
 import Image from "next/image";
 import { Tweet } from 'react-tweet';
+import { Post } from "bsky-react-post";
+import "../../styles/bsky-embed.css";
 
 type MediaItem = {
    type: "image" | "embed";
-   url: string;
+   url?: string;
+   embedItems?: { 
+      itemType: "twitter" | "bsky"; 
+      url?: string;
+      handle?: string;
+      id?: string;
+   }[];
 };
 
 type ChangelogData = {
@@ -55,7 +63,7 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad }) => {
                            return (
                               <div key={idx} className='relative aspect-square w-full md:w-1/2'>
                                  <Image
-                                    src={mediaItem.url}
+                                    src={mediaItem.url!}
                                     alt='media item'
                                     sizes='(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 50vw'
                                     fill
@@ -64,16 +72,27 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad }) => {
                               </div>
                            );
                         } else if (mediaItem.type === "embed" && item.media.isEmbedAvailable) {
-                           const isTweetUrl = mediaItem.url.match(/^https?:\/\/(twitter\.com|x\.com)\/[a-zA-Z0-9_]+\/status\/[0-9]+/);
-                           if (isTweetUrl) {
-                              const tweetId = getTweetId(mediaItem.url);
-                              return (
-                                 <div key={idx} className='w-full' onLoad={onTweetLoad}>
-                                    <Tweet id={tweetId} />
-                                 </div>
-                              );
-                           }
-                           return null;
+                           return (
+                              <div key={idx} className='w-full'>
+                                 {mediaItem.embedItems?.map((embed, embedIdx) => {
+                                    if (embed.itemType === "twitter") {
+                                       const tweetId = getTweetId(embed.url);
+                                       return (
+                                          <div key={embedIdx} className='w-full' onLoad={onTweetLoad}>
+                                             <Tweet id={tweetId} />
+                                          </div>
+                                       );
+                                    } else if (embed.itemType === "bsky") {
+                                       return (
+                                          <div key={embedIdx} className='w-full'>
+                                             <Post handle={embed.handle!} id={embed.id!} />
+                                          </div>
+                                       );
+                                    }
+                                    return null;
+                                 })}
+                              </div>
+                           );
                         }
                         return null;
                      })}
