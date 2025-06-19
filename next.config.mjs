@@ -22,6 +22,31 @@ const nextConfig = {
          },
       ],
    },
+   headers: async () => {
+      return [
+         {
+            source: "/(.*)",
+            headers: [
+               {
+                  key: "X-Frame-Options",
+                  value: "ALLOW-FROM https://arvind-tech.vercel.app/",
+               },
+               {
+                  key: "Content-Security-Policy",
+                  value: "frame-ancestors 'self' hhttps://arvind-tech.vercel.app/",
+               },
+               // {
+               //    key: "X-Content-Type-Options",
+               //    value: "nosniff",
+               // },
+               // {
+               //    key: "Referrer-Policy",
+               //    value: "no-referrer",
+               // },
+            ],
+         },
+      ];
+   },
 };
 
 export default nextConfig;
