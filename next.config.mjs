@@ -29,11 +29,11 @@ const nextConfig = {
             headers: [
                {
                   key: "X-Frame-Options",
-                  value: "ALLOW-FROM https://arvind-tech.vercel.app/",
+                  value: "ALLOW-FROM https://arvindparekh.tech/",
                },
                {
                   key: "Content-Security-Policy",
-                  value: "frame-ancestors 'self' hhttps://arvind-tech.vercel.app/",
+                  value: "frame-ancestors 'self' https://arvindparekh.tech/",
                },
                // {
                //    key: "X-Content-Type-Options",
