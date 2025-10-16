@@ -29,7 +29,7 @@ const nextConfig = {
             headers: [
                {
                   key: "Content-Security-Policy",
-                  value: "frame-ancestors 'self' https://arvindparekh.tech",
+                  value: "frame-ancestors 'self' https://www.arvindparekh.tech",
                },
             ],
          },
