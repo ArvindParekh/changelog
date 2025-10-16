@@ -28,21 +28,9 @@ const nextConfig = {
             source: "/(.*)",
             headers: [
                {
-                  key: "X-Frame-Options",
-                  value: "ALLOW-FROM https://arvindparekh.tech/",
-               },
-               {
                   key: "Content-Security-Policy",
-                  value: "frame-ancestors 'self' https://arvindparekh.tech/",
+                  value: "frame-ancestors 'self' https://arvindparekh.tech",
                },
-               // {
-               //    key: "X-Content-Type-Options",
-               //    value: "nosniff",
-               // },
-               // {
-               //    key: "Referrer-Policy",
-               //    value: "no-referrer",
-               // },
             ],
          },
       ];
