@@ -103,7 +103,7 @@ export const Timeline = () => {
    }, [data, loadedTweets]);
 
    return (
-      <div className='w-full bg-neutral-950 font-sans md:px-10' ref={containerRef}>
+      <div className='w-full bg-black font-sans md:px-10' ref={containerRef}>
          <ChangelogHeader />
 
          <div ref={ref} className='relative max-w-7xl mx-auto pb-20 bg-black'>
