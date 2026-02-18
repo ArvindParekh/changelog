@@ -2,14 +2,17 @@
 import React from 'react';
 
 const ChangelogHeader = () => (
-   <div className='max-w-7xl mx-auto py-20 px-4 md:px-8 lg:px-10'>
-      <h2 className='text-lg md:text-4xl mb-4 text-white max-w-4xl'>
+   <header className='max-w-7xl mx-auto px-4 pt-16 pb-8 md:px-8 md:pt-20 md:pb-12 lg:px-10'>
+      <span className='inline-flex rounded-full border border-neutral-800 bg-neutral-950 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.14em] text-neutral-400'>
+         Journey Notes
+      </span>
+      <h2 className='mt-5 max-w-4xl text-3xl font-semibold leading-[1.08] text-white md:text-5xl'>
          Changelog from my journey
       </h2>
-      <p className='text-neutral-300 text-sm md:text-base max-w-sm'>
-         Still figuring things out &mdash; Here&apos;s the highlight reel!
+      <p className='mt-4 max-w-xl text-sm leading-relaxed text-neutral-400 md:text-base'>
+         Still figuring things out. Here&apos;s the highlight reel.
       </p>
-   </div>
+   </header>
 );
 
 export default ChangelogHeader; 

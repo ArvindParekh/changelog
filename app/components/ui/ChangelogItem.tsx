@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Tweet } from 'react-tweet';
 import { Post } from "bsky-react-post";
 import "../../styles/bsky-embed.css";
+import { cn } from "@/app/lib/utils";
 
 type MediaItem = {
    type: "image" | "embed";
@@ -37,38 +38,44 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad, onEmbe
       const matches = url.match(/\/status\/(\d+)/);
       return matches ? matches[1] : '';
    };
+   const hasMedia = item.media.isImageAvailable || item.media.isEmbedAvailable;
 
    return (
-      <div className='flex justify-start pt-10 md:pt-40 md:gap-10'>
-         <div className='sticky flex flex-col md:flex-row z-40 items-center top-40 self-start max-w-xs lg:max-w-sm md:w-full'>
-            <div className='h-10 absolute left-3 md:left-3 w-10 rounded-full bg-black flex items-center justify-center'>
-               <div className='h-4 w-4 rounded-full bg-neutral-800 border border-neutral-700 p-2' />
+      <article className='flex justify-start pt-8 md:pt-24 md:gap-8'>
+         <div className='sticky z-40 flex max-w-xs flex-col items-center self-start md:w-full md:max-w-sm md:flex-row top-28 md:top-32'>
+            <div className='absolute left-3 flex h-10 w-10 items-center justify-center rounded-full bg-black md:left-3'>
+               <div className='h-3.5 w-3.5 rounded-full border border-neutral-600 bg-neutral-800 shadow-[0_0_0_4px_rgba(0,0,0,0.65)]' />
             </div>
-            <h3 className='hidden md:block text-xl md:pl-20 md:text-5xl font-bold text-neutral-500'>
+            <h3 className='hidden md:block md:pl-20 text-2xl md:text-5xl font-semibold tracking-tight text-neutral-500/90'>
                {item.date}
             </h3>
          </div>
 
-         <div className='relative pl-20 pr-4 md:pl-4 w-full'>
-            <h3 className='md:hidden block text-2xl mb-4 text-left font-bold text-neutral-500'>
+         <div className='relative w-full pl-20 pr-4 md:pl-4'>
+            <h3 className='mb-3 block text-2xl font-semibold tracking-tight text-neutral-500 md:hidden'>
                {item.date}
             </h3>
-            <div>
-               <p className='text-neutral-200 text-xs md:text-sm font-normal mb-8'>
+            <div
+               className={cn(
+                  "inline-block w-fit max-w-full rounded-2xl border border-neutral-900 bg-neutral-950/40 p-4 md:p-6",
+                  hasMedia ? "md:max-w-[42rem]" : "md:max-w-[52rem]"
+               )}
+            >
+               <p className='mb-6 text-sm font-normal leading-relaxed text-neutral-200 md:max-w-[64ch] md:text-[15px]'>
                   {item.text}
                </p>
                {(item.media.isImageAvailable || item.media.isEmbedAvailable) && (
-                  <div className='grid grid-cols-1 gap-4'>
+                  <div className='inline-grid w-fit max-w-full grid-cols-1 gap-5'>
                      {item.media.mediaItems.map((mediaItem, idx) => {
                         if (mediaItem.type === "image" && item.media.isImageAvailable) {
                            return (
-                              <div key={idx} className='relative aspect-square w-full md:w-1/2'>
+                              <div key={idx} className='relative aspect-square w-full max-w-full overflow-hidden rounded-xl border border-neutral-800 bg-neutral-900 sm:w-[22rem] md:w-[30rem]'>
                                  <Image
                                     src={mediaItem.url!}
                                     alt='media item'
                                     sizes='(min-width: 1024px) 50vw, (min-width: 768px) 50vw, 50vw'
                                     fill
-                                    className='rounded-lg object-contain shadow-[0_0_24px_rgba(34,_42,_53,_0.06),_0_1px_1px_rgba(0,_0,_0,_0.05),_0_0_0_1px_rgba(34,_42,_53,_0.04),_0_0_4px_rgba(34,_42,_53,_0.08),_0_16px_68px_rgba(47,_48,_55,_0.05),_0_1px_0_rgba(255,_255,_255,_0.1)_inset]'
+                                    className='object-contain p-1'
                                  />
                               </div>
                            );
@@ -79,14 +86,14 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad, onEmbe
                                     if (embed.itemType === "twitter") {
                                        const tweetId = getTweetId(embed.url);
                                        return (
-                                          <div key={embedIdx} className='w-full' onLoad={onTweetLoad}>
+                                          <div key={embedIdx} className='w-fit max-w-full overflow-hidden rounded-xl border border-neutral-900 sm:max-w-[560px]' onLoad={onTweetLoad}>
                                              <Tweet id={tweetId} />
                                           </div>
                                        );
                                     } else if (embed.itemType === "bsky") {
                                        onEmbedLoad();
                                        return (
-                                          <div key={embedIdx} className='w-full'>
+                                          <div key={embedIdx} className='w-fit max-w-full overflow-hidden rounded-xl border border-neutral-900 sm:max-w-[560px]'>
                                              <Post handle={embed.handle!} id={embed.id!} />
                                           </div>
                                        );
@@ -102,7 +109,7 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad, onEmbe
                )}
             </div>
          </div>
-      </div>
+      </article>
    );
 };
 
