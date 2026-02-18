@@ -109,7 +109,7 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad, onEmbe
                             // className='w-full min-w-0 overflow-hidden rounded-xl border border-neutral-900'
                             // onLoad={onTweetLoad}
                             // >
-                            <Tweet id={tweetId} />
+                            <Tweet key={embedIdx} id={tweetId} />
                             // </div>
                           );
                         } else if (embed.itemType === "bsky") {
@@ -119,7 +119,7 @@ const ChangelogItem: React.FC<ChangelogItemProps> = ({ item, onTweetLoad, onEmbe
                             // key={embedIdx}
                             // className='w-full min-w-0 overflow-hidden rounded-xl border border-neutral-900'
                             // >
-                            <Post handle={embed.handle!} id={embed.id!} />
+                            <Post key={embedIdx} handle={embed.handle!} id={embed.id!} />
                             // </div>
                           );
                         }
